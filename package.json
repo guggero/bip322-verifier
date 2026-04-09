@@ -1,0 +1,55 @@
+{
+  "name": "bip322-verifier",
+  "version": "0.1.0",
+  "description": "BIP-322 Bitcoin message signature verification using WebAssembly",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "generate:wasm-exec": "node scripts/generate-wasm-exec.mjs",
+    "build:wasm": "./build-wrapper.sh",
+    "build:js": "npm run generate:wasm-exec && tsup && cp bip322.wasm dist/",
+    "build": "npm run build:wasm && npm run build:js",
+    "test": "node --test test/test-vectors.test.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "bitcoin",
+    "bip322",
+    "signature",
+    "verify",
+    "wasm",
+    "webassembly"
+  ],
+  "author": "Oli <gugger@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guggero/bip322-verifier.git"
+  },
+  "homepage": "https://github.com/guggero/bip322-verifier",
+  "bugs": {
+    "url": "https://github.com/guggero/bip322-verifier/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

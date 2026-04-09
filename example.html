@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIP-322 Message Verification</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, Helvetica, Arial, sans-serif;
+            max-width: 640px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #1a1a1a;
+            background: #fafafa;
+        }
+        h1 { font-size: 1.4em; margin-bottom: 4px; }
+        .subtitle {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+            margin-top: 16px;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: "SF Mono", "Fira Code", "Fira Mono",
+                         "Roboto Mono", monospace;
+            font-size: 0.85em;
+        }
+        textarea { resize: vertical; min-height: 60px; }
+        select { font-family: inherit; }
+        button {
+            margin-top: 20px;
+            padding: 10px 24px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) { background: #1d4ed8; }
+        #result {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            display: none;
+        }
+        #result.valid {
+            display: block;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+        #result.invalid {
+            display: block;
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+        #status {
+            margin-top: 12px;
+            font-size: 0.85em;
+            color: #666;
+        }
+        .example-link {
+            font-size: 0.8em;
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <h1>BIP-322 Message Verification</h1>
+    <p class="subtitle">Verify signed Bitcoin messages (BIP-322 simple &amp; full variants)</p>
+
+    <label for="message">Message</label>
+    <textarea id="message" placeholder="The signed message"></textarea>
+
+    <label for="address">Address</label>
+    <input id="address" type="text" placeholder="bc1q...">
+
+    <label for="signature">Signature (base64)</label>
+    <textarea id="signature" rows="3" placeholder="Base64-encoded BIP-322 signature"></textarea>
+
+    <label for="network">Network</label>
+    <select id="network">
+        <option value="mainnet" selected>Mainnet</option>
+        <option value="testnet3">Testnet3</option>
+        <option value="signet">Signet</option>
+        <option value="regtest">Regtest</option>
+        <option value="simnet">Simnet</option>
+    </select>
+
+    <span class="example-link" onclick="fillExample()">Fill with example data</span>
+
+    <button id="verify-btn" disabled>Loading WASM...</button>
+    <div id="result"></div>
+    <div id="status"></div>
+
+    <script src="wasm_exec.js"></script>
+    <script>
+        const verifyBtn = document.getElementById("verify-btn");
+        const resultDiv = document.getElementById("result");
+        const statusDiv = document.getElementById("status");
+
+        // Fill the form with a known-valid BIP-322 test vector
+        // (P2WPKH, "Hello World" message from the BIP-322 spec).
+        function fillExample() {
+            document.getElementById("message").value = "Hello World";
+            document.getElementById("address").value =
+                "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l";
+            document.getElementById("signature").value =
+                "AkcwRAIgZRfIY3p7/DoVTty6YZbWS71bc5Vct9p9Fia83eRmw2QCICK" +
+                "/ENGfwLtptFluMGs2KsqoNSk89pO7F29zJLUx9a/sASECx/EgAxlkQp" +
+                "Q9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=";
+            document.getElementById("network").value = "mainnet";
+            resultDiv.className = "";
+            resultDiv.style.display = "none";
+        }
+
+        function verify() {
+            const message   = document.getElementById("message").value;
+            const address   = document.getElementById("address").value;
+            const signature = document.getElementById("signature").value;
+            const network   = document.getElementById("network").value;
+
+            if (!address || !signature) {
+                resultDiv.textContent = "Address and signature are required.";
+                resultDiv.className = "invalid";
+                return;
+            }
+
+            const res = bip322.verifyMessage(
+                message, address, signature, network,
+            );
+
+            if (res.valid) {
+                resultDiv.textContent = "Valid signature.";
+                resultDiv.className = "valid";
+            } else {
+                resultDiv.textContent = "Invalid: " + (res.error || "unknown error");
+                resultDiv.className = "invalid";
+            }
+        }
+
+        // Load the WASM module.
+        async function init() {
+            if (typeof Go === "undefined") {
+                statusDiv.textContent =
+                    "Error: wasm_exec.js not found. See the HTML comments for setup instructions.";
+                return;
+            }
+
+            statusDiv.textContent = "Loading WASM module...";
+
+            // Register a ready callback so we know exactly when the
+            // Go main() has finished setting up the JS globals.
+            const ready = new Promise(resolve => {
+                window.onBip322Ready = resolve;
+            });
+
+            const go = new Go();
+            try {
+                const result = await WebAssembly.instantiateStreaming(
+                    fetch("bip322.wasm"), go.importObject,
+                );
+                go.run(result.instance);  // don't await; blocks until exit
+                await ready;
+
+                verifyBtn.textContent = "Verify";
+                verifyBtn.disabled = false;
+                verifyBtn.onclick = verify;
+                statusDiv.textContent = "";
+            } catch (err) {
+                statusDiv.textContent = "Failed to load WASM: " + err;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

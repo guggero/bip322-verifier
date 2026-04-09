@@ -1,0 +1,4 @@
+node_modules/
+dist/
+src/wasm_exec_inline.ts
+*.tgz
