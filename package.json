@@ -1,6 +1,6 @@
 {
   "name": "bip322-verifier",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "BIP-322 Bitcoin message signature verification using WebAssembly",
   "type": "module",
   "main": "./dist/index.cjs",

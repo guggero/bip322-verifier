@@ -47,9 +47,14 @@ async function loadWasm(
     // Auto-detect environment and load WASM from alongside this module.
     if (typeof process !== 'undefined' && process.versions?.node) {
       // Node.js: read from filesystem relative to this file.
-      const { readFile } = await import('node:fs/promises');
-      const { fileURLToPath } = await import('node:url');
-      const { dirname, join } = await import('node:path');
+      // Use new Function to prevent bundlers from statically analyzing
+      // these Node.js-only imports and erroring in browser builds.
+      const nodeImport = new Function('m', 'return import(m)') as (
+        m: string,
+      ) => Promise<any>;
+      const { readFile } = await nodeImport('node:fs/promises');
+      const { fileURLToPath } = await nodeImport('node:url');
+      const { dirname, join } = await nodeImport('node:path');
       const dir = dirname(fileURLToPath(import.meta.url));
       const buf = await readFile(join(dir, 'bip322.wasm'));
       result = await WebAssembly.instantiate(buf, go.importObject);
