@@ -56,5 +56,49 @@
         "BQBHMEQCIFX9aaqPJWq2Ff2kpen5bFDTid+ehgUOpHV0LfjncXy4AiA3GNicF7aKPzdpa9PCpmaYQs3pHd+qbvvhXdxOCKCAMAFIMEUCIQD/ELXg6CNYyUQijCg96JtgvgjZb9dsl1Ctof4QAeyTcQIgVM/1AAblFl/DCt6A1gJg+T/i2qU5SQD09+chFJzolRwBSDBFAiEAlqRfSFyWNVQhvaCnmeV5tyneiCWMTcFbuujoD/pFa3wCIGnZjfQb8NolSYq9asV+ZeBSkCGHJcqnaV4JYS5MYPEGAWlTIQJ1aLEfEi/4p7wcV+XHZCBVvGGJZ7L3v+jhH+mZA8lN0yECCovfec+kIdllXpKCgA8RX/HZ2x5yHOtCSKP8/sf6pnwhAwxSng6kCgCXXSAmJOOZFdr3vdK3HzGqCFloOHgc5fM6U64="
       ]
     }
+  ],
+  "error": [
+    {
+      "description": "invalid base64 encoding",
+      "message": "",
+      "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+      "signature": "not-valid-base64!!!",
+      "error_substr": "base64"
+    },
+    {
+      "description": "empty signature",
+      "message": "",
+      "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+      "signature": "",
+      "error_substr": "unknown format"
+    },
+    {
+      "description": "wrong message for valid simple p2wpkh signature (empty message was signed)",
+      "message": "Wrong message that was not signed",
+      "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+      "signature": "AkcwRAIgM2gBAQqvZX15ZiysmKmQpDrG83avLIT492QBzLnQIxYCIBaTpOaD20qRlEylyxFSeEA2ba9YOixpX8z46TSDtS40ASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "error_substr": "invalid signature"
+    },
+    {
+      "description": "wrong address for valid simple p2wpkh signature (signed for different address)",
+      "message": "",
+      "address": "bc1qp0ahvfh83088w49k405szqgg4f3pptr7p2g06tdxfjcd40z4lh4q95lsz9",
+      "signature": "AkcwRAIgM2gBAQqvZX15ZiysmKmQpDrG83avLIT492QBzLnQIxYCIBaTpOaD20qRlEylyxFSeEA2ba9YOixpX8z46TSDtS40ASECx/EgAxlkQpQ9hYjgGu6EBCPMVPwVIVJqO4XCsMvViHI=",
+      "error_substr": "invalid signature"
+    },
+    {
+      "description": "empty witness stack (single zero byte)",
+      "message": "",
+      "address": "bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l",
+      "signature": "AA==",
+      "error_substr": "invalid signature"
+    },
+    {
+      "description": "wrong message for valid simple p2wsh 3-of-3 multisig signature",
+      "message": "This is not the message that was signed",
+      "address": "bc1qp0ahvfh83088w49k405szqgg4f3pptr7p2g06tdxfjcd40z4lh4q95lsz9",
+      "signature": "BQBHMEQCIFX9aaqPJWq2Ff2kpen5bFDTid+ehgUOpHV0LfjncXy4AiA3GNicF7aKPzdpa9PCpmaYQs3pHd+qbvvhXdxOCKCAMAFIMEUCIQD/ELXg6CNYyUQijCg96JtgvgjZb9dsl1Ctof4QAeyTcQIgVM/1AAblFl/DCt6A1gJg+T/i2qU5SQD09+chFJzolRwBSDBFAiEAlqRfSFyWNVQhvaCnmeV5tyneiCWMTcFbuujoD/pFa3wCIGnZjfQb8NolSYq9asV+ZeBSkCGHJcqnaV4JYS5MYPEGAWlTIQJ1aLEfEi/4p7wcV+XHZCBVvGGJZ7L3v+jhH+mZA8lN0yECCovfec+kIdllXpKCgA8RX/HZ2x5yHOtCSKP8/sf6pnwhAwxSng6kCgCXXSAmJOOZFdr3vdK3HzGqCFloOHgc5fM6U64=",
+      "error_substr": "invalid signature"
+    }
   ]
 }
